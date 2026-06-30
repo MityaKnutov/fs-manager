@@ -1,5 +1,6 @@
 import logging
-from fs_operations import list_files, create_folder, delete_folder
+from fs_operations import list_files, create_folder, delete_folder, search_a_like
+
 
 def handle_command(command, params):
     try:
@@ -30,6 +31,19 @@ def handle_command(command, params):
                 print('Использование: move <source_path> <destination_path>')
                 return
             move_file(params[0], params[1])
+        elif command == 'search_a_like':
+            if len(params) != 2:
+                print('Использование: search <directory> <regex_pattern>')
+                return
+            directory = params[0]
+            pattern = params[1]
+            find_results = search_a_like(directory, pattern)
+            if find_results:
+                print('Найденные файлы:')
+                for file_path in find_results:
+                    print(file_path)
+            else:
+                print('Файлы по шаблону не найдены.')
         else:
             print('Неизвестная команда')
     except Exception as e:
@@ -44,5 +58,6 @@ def print_help():
     delete <folder_name> <path> - удалить папку
     move <name> <paths> - перемещает файл или папку
     delete_file <path> - удаляет файл по указанному пути
+    search_a_like 
     """
     print(help_text)

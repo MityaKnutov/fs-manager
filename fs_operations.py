@@ -1,6 +1,7 @@
 import os
 import logging
 import shutil
+import re
 
 def list_files(path='.'):
     try:
@@ -59,3 +60,17 @@ def move(source_path, destination_path):
         print(f'Источник {source_path} не найден.')
     except Exception as e:
         logging.error(f'Ошибка при перемещении файла: {e}')
+
+def search_a_like(directory, pattern):
+    '''Поиск файлов в папках, в том числе во вложенных, соответствующих шаблону regex.
+    :param directory: путь к каталогу
+    :param pattern: строка regex
+    :return: список путей найденных файлов
+    '''
+    matched_files = []
+    regex = re.compile(pattern)
+    for root, dirs, files in os.walk(directory):
+        for filename in files:
+            if regex.search(filename):
+                matched_files.append(os.path.join(root, filename))
+    return matched_files
