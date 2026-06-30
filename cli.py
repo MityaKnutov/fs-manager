@@ -44,6 +44,13 @@ def handle_command(command, params):
                     print(file_path)
             else:
                 print('Файлы по шаблону не найдены.')
+        elif command == 'add_date':
+            if len(params) < 1:
+                print('Использование: add_date <path> [--recursive]')
+                return
+            path = params[0]
+            recursive = '--recursive' in params
+            append_date_to_files(path, recursive)
         else:
             print('Неизвестная команда')
     except Exception as e:
@@ -58,6 +65,7 @@ def print_help():
     delete <folder_name> <path> - удалить папку
     move <name> <paths> - перемещает файл или папку
     delete_file <path> - удаляет файл по указанному пути
-    search_a_like 
+    search_a_like - поиск файлов, название которых похоже на запрос
+    add_date - добавление даты создания файла в название файла
     """
     print(help_text)

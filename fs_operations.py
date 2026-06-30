@@ -2,6 +2,7 @@ import os
 import logging
 import shutil
 import re
+import datetime
 
 def list_files(path='.'):
     try:
@@ -74,3 +75,43 @@ def search_a_like(directory, pattern):
             if regex.search(filename):
                 matched_files.append(os.path.join(root, filename))
     return matched_files
+
+def append_date_to_files(path, recursive=False):
+    """
+    Добавляет дату создания файла в его название.
+    Если path — папка, то действует на все файлы внутри.
+    --recursive — обработка вложенных папок.
+    """
+    if not os.path.exists(path):
+        print(f"Путь {path} не найден.")
+        return
+
+    if os.path.isfile(path):
+        _append_date_to_file(path)
+    elif os.path.isdir(path):
+        if recursive:
+            for root, dirs, files in os.walk(path):
+                for filename in files:
+                    full_path = os.path.join(root, filename)
+                    _append_date_to_file(full_path)
+        else:
+            # Обработка только файлов внутри папки, без вложений
+            for filename in os.listdir(path):
+                full_path = os.path.join(path, filename)
+                if os.path.isfile(full_path):
+                    _append_date_to_file(full_path)
+
+
+def _append_date_to_file(file_path):
+    try:
+        # Получаем дату создания файла (на Windows/Unix разное)
+        timestamp = os.path.getctime(file_path)
+        date_str = datetime.datetime.fromtimestamp(timestamp).strftime('%Y%m%d')
+        dir_name, base_name = os.path.split(file_path)
+        name, ext = os.path.splitext(base_name)
+        new_name = f"{name}_{date_str}{ext}"
+        new_path = os.path.join(dir_name, new_name)
+        os.rename(file_path, new_path)
+        print(f"Файл {file_path} переименован в {new_path}")
+    except Exception as e:
+        print(f"Ошибка при переименовании файла {file_path}: {e}")

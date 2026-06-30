@@ -6,7 +6,7 @@ from cli import handle_command
 
 def main():
     parser = argparse.ArgumentParser(description='Простой файловый менеджер')
-    parser.add_argument('command', help='Команда для выполнения', choices=['list', 'create', 'delete', 'help', 'move', 'delete_file', 'search_a_like'])
+    parser.add_argument('command', help='Команда для выполнения', choices=['list', 'create', 'delete', 'help', 'move', 'delete_file', 'search_a_like', 'add_date'])
     parser.add_argument('params', nargs='*', help='Параметры команды')
 
     #Проверка наличия аргументов
