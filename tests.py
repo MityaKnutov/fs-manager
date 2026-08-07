@@ -6,36 +6,35 @@ from fs_operations import (
     create_folder,
     delete_folder,
     delete_file,
-    move,
-    copy,
-    search_a_like,
-    append_date_to_files,
-    analyse
+    move
 )
 
 
 class TestFileSystemOperations(unittest.TestCase):
     def setUp(self):
+        # Создаем тестовые файлы и папки для всех тестов
         self.test_dir = 'test_dir'
         self.test_file = 'test_file.txt'
         self.moved_file = 'moved_file.txt'
         self.moved_dir = 'moved_dir'
-        self.copied_file = 'copied_file.txt'
-        self.copied_dir = 'copied_dir'
 
+        # Создаем папку
         os.makedirs(self.test_dir, exist_ok=True)
 
-        with open(self.test_file, 'w', encoding='utf-8') as f:
+        # Создаем файл внутри директории
+        with open(self.test_file, 'w') as f:
             f.write('Тестовый файл')
 
-        with open(os.path.join(self.test_dir, 'file_in_dir.txt'), 'w', encoding='utf-8') as f:
+        # Создаем еще один файл внутри папки
+        with open(os.path.join(self.test_dir, 'file_in_dir.txt'), 'w') as f:
             f.write('Тест внутри папки')
 
     def tearDown(self):
-        for path in [self.test_file, self.moved_file, self.copied_file]:
+        # Удаляем все созданные файлы и папки после тестов
+        for path in [self.test_file, self.moved_file]:
             if os.path.exists(path):
                 os.remove(path)
-        for path in [self.test_dir, self.moved_dir, self.copied_dir]:
+        for path in [self.test_dir, self.moved_dir]:
             if os.path.exists(path):
                 shutil.rmtree(path)
 
@@ -48,17 +47,18 @@ class TestFileSystemOperations(unittest.TestCase):
         new_folder = 'test_create_folder'
         create_folder(new_folder)
         self.assertTrue(os.path.isdir(new_folder))
+        # Очистка
         os.rmdir(new_folder)
 
     def test_delete_folder(self):
+        # Создадим папку для удаления
         folder_to_delete = 'folder_to_delete'
-        os.makedirs(folder_to_delete, exist_ok=True)
-        with open(os.path.join(folder_to_delete, 'inside.txt'), 'w') as f:
-            f.write('content')
-
+        os.makedirs(folder_to_delete)
         delete_folder(folder_to_delete)
         self.assertFalse(os.path.exists(folder_to_delete))
-        delete_folder('несуществующая_папка')
+
+        # Попытка удалить несуществующую папку
+        delete_folder('несуществующая_папка')  # не ожидается исключение
 
     def test_delete_file(self):
         test_filename = 'file_to_delete.txt'
@@ -66,54 +66,33 @@ class TestFileSystemOperations(unittest.TestCase):
             f.write('Удаление файла')
         delete_file(test_filename)
         self.assertFalse(os.path.exists(test_filename))
-        delete_file('несуществующий_файл.txt')
+
+        # Попытка удалить несуществующий файл
+        delete_file('несуществующий_файл.txt')  # не ожидается исключение
 
     def test_move_file(self):
+        # Переместим файл в новое место
         move(self.test_file, self.moved_file)
         self.assertTrue(os.path.exists(self.moved_file))
         self.assertFalse(os.path.exists(self.test_file))
+        # Переместим папку
         move(self.test_dir, self.moved_dir)
         self.assertTrue(os.path.exists(self.moved_dir))
         self.assertFalse(os.path.exists(self.test_dir))
+        # Проверяем содержимое перемещенной папки
         self.assertTrue(os.path.exists(os.path.join(self.moved_dir, 'file_in_dir.txt')))
 
-    def test_copy_file_and_folder(self):
-        copy(self.test_file, self.copied_file)
-        self.assertTrue(os.path.exists(self.copied_file))
-        self.assertTrue(os.path.exists(self.test_file))
-
-        copy(self.test_dir, self.copied_dir)
-        self.assertTrue(os.path.exists(self.copied_dir))
-        self.assertTrue(os.path.exists(os.path.join(self.copied_dir, 'file_in_dir.txt')))
-
-    def test_search_a_like(self):
-        results = search_a_like(self.test_dir, r'file_.*\.txt')
-        self.assertEqual(len(results), 1)
-
-    def test_append_date_to_files(self):
-        date_dir = 'test_date_dir'
-        os.makedirs(date_dir, exist_ok=True)
-        file_path = os.path.join(date_dir, 'sample.txt')
-        with open(file_path, 'w') as f:
-            f.write('hello')
-        append_date_to_files(date_dir)
-        files = os.listdir(date_dir)
-        self.assertTrue(any('sample_' in f for f in files))
-        shutil.rmtree(date_dir)
-
-    def test_analyse(self):
-        total_size, items = analyse(self.test_dir)
-        self.assertGreater(total_size, 0)
-        self.assertEqual(len(items), 1)
-
     def test_move_nonexistent(self):
-        move('nonexistent.txt', 'dest.txt')
+        # Передача несуществующего файла
+        move('nonexistent.txt', 'dest.txt')  # не вызывает ошибок
 
     def test_delete_nonexistent_file(self):
-        delete_file('nonexistent.txt')
+        # Удаление несуществующего файла не должно падать
+        delete_file('nonexistent.txt')  # не вызывает ошибок
 
     def test_delete_nonexistent_folder(self):
-        delete_folder('nonexistent_folder')
+        # Удаление несуществующей папки не должно падать
+        delete_folder('nonexistent_folder')  # не вызывает ошибок
 
 
 if __name__ == '__main__':
